@@ -2,6 +2,7 @@ package com.example.testing.repository;
 
 import com.example.testing.entity.Employee;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,19 +17,22 @@ public class EmployeeRepositoryTest {
     @Autowired
     private EmployeeRepository employeeRepository;
 
+private Employee employee;
+    @BeforeEach
+    void setup(){
+        employee = Employee
+                .builder()
+                .firstName("Benson")
+                .lastName("Astrakhan")
+                .email("e@h.v")
+                .build();
+    }
 
     // test save employee
     @Test
     @DisplayName("Test Save Employee")
     public void givenEmployeeObject_whenSave_thenReturnEmployee() {
         //given
-        Employee employee = Employee
-                .builder()
-                .firstName("Benson")
-                .lastName("Astrakhan")
-                .email("e@h.v")
-                .build();
-
         //when
         Employee savedEmployee = employeeRepository.save(employee);
 
@@ -40,12 +44,7 @@ public class EmployeeRepositoryTest {
     @Test
     @DisplayName("Test findAll Employees")
     public void givenEmployees_whenFindAll_thenReturnEmployeeList(){
-        Employee employee = Employee
-                .builder()
-                .firstName("Benson")
-                .lastName("Astrakhan")
-                .email("e@h.v")
-                .build();
+
         Employee employee1 = Employee
                 .builder()
                 .firstName("Alex")
@@ -70,12 +69,12 @@ public class EmployeeRepositoryTest {
      @DisplayName("Find Employee By Id")
      public void givenEmployee_whenFindById_thenReturnEmployee(){
          //given - precondition / setup
-         Employee employee = Employee
-                 .builder()
-                 .firstName("Benson")
-                 .lastName("Astrakhan")
-                 .email("e@h.v")
-                 .build();
+//         Employee employee = Employee
+//                 .builder()
+//                 .firstName("Benson")
+//                 .lastName("Astrakhan")
+//                 .email("e@h.v")
+//                 .build();
          employeeRepository.save(employee);
 
          //when
@@ -90,12 +89,12 @@ public class EmployeeRepositoryTest {
      @DisplayName("Name to Display")
      public void givenEmployeeObject_whenFindByEmail_thenReturnEmployee(){
          //given - precondition / setup
-         Employee employee = Employee
-                 .builder()
-                 .firstName("Benson")
-                 .lastName("Astrakhan")
-                 .email("e@h.v")
-                 .build();
+//         Employee employee = Employee
+//                 .builder()
+//                 .firstName("Benson")
+//                 .lastName("Astrakhan")
+//                 .email("e@h.v")
+//                 .build();
          employeeRepository.save(employee);
 
          //when - action or behaviour that we are testing
@@ -110,18 +109,29 @@ public class EmployeeRepositoryTest {
       @DisplayName("Test Get Employee By Names")
       public void givenFirstNameAndLastName_whenFindByName_thenReturnEmployee(){
           //given - precondition / setup
-          Employee employee = Employee
-                  .builder()
-                  .firstName("Benson")
-                  .lastName("Astrakhan")
-                  .email("e@h.v")
-                  .build();
+
           employeeRepository.save(employee);
           var firstName = "Benson";
           var lastName = "Astrakhan";
 
           //when - action or behaviour that we are testing
           Employee employee1 = employeeRepository.findByName(firstName, lastName);
+
+          //then - verify the output
+          Assertions.assertThat(employee1).isNotNull();
+      }
+
+@Test
+      @DisplayName("Test Get Employee By Names")
+      public void givenFirstNameAndLastName_whenFindByNamedParams_thenReturnEmployee(){
+          //given - precondition / setup
+
+          employeeRepository.save(employee);
+          var firstName = "Benson";
+          var lastName = "Astrakhan";
+
+          //when - action or behaviour that we are testing
+          Employee employee1 = employeeRepository.findByNamedParams(firstName, lastName);
 
           //then - verify the output
           Assertions.assertThat(employee1).isNotNull();
