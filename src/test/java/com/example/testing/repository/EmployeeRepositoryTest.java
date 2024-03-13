@@ -9,6 +9,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @DataJpaTest
 public class EmployeeRepositoryTest {
@@ -78,11 +79,53 @@ public class EmployeeRepositoryTest {
          employeeRepository.save(employee);
 
          //when
-         Employee savedEmployee = employeeRepository.findById(1L).get();
+         Employee savedEmployee = employeeRepository.findById(employee.getId()).get();
 
          //then - verify the output
          Assertions.assertThat(savedEmployee).isNotNull();
      }
+
+
+     @Test
+     @DisplayName("Name to Display")
+     public void givenEmployeeObject_whenFindByEmail_thenReturnEmployee(){
+         //given - precondition / setup
+         Employee employee = Employee
+                 .builder()
+                 .firstName("Benson")
+                 .lastName("Astrakhan")
+                 .email("e@h.v")
+                 .build();
+         employeeRepository.save(employee);
+
+         //when - action or behaviour that we are testing
+         Optional<Employee> savedEmployee = employeeRepository.findByEmail(employee.getEmail());
+
+         //then - verify the output
+         Assertions.assertThat(savedEmployee.get()).isNotNull();
+     }
+
+
+      @Test
+      @DisplayName("Test Get Employee By Names")
+      public void givenFirstNameAndLastName_whenFindByName_thenReturnEmployee(){
+          //given - precondition / setup
+          Employee employee = Employee
+                  .builder()
+                  .firstName("Benson")
+                  .lastName("Astrakhan")
+                  .email("e@h.v")
+                  .build();
+          employeeRepository.save(employee);
+          var firstName = "Benson";
+          var lastName = "Astrakhan";
+
+          //when - action or behaviour that we are testing
+          Employee employee1 = employeeRepository.findByName(firstName, lastName);
+
+          //then - verify the output
+          Assertions.assertThat(employee1).isNotNull();
+      }
 
 
 }
