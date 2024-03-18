@@ -14,11 +14,14 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
@@ -75,5 +78,26 @@ public class ControllerTest {
                   .andExpect(MockMvcResultMatchers.jsonPath("$.size()",CoreMatchers.is(2)));
       }
 
+    @Test
+    public void givenEmployee_whenGetEmployeeById_thenReturnEmployee() throws Exception{
+        //given - precondition / setup
+        BDDMockito.given(employeeServce.getEmployeeByID(anyLong())).willReturn(Optional.of(employee));
+        //when - action or behaviour that we are testing
+        ResultActions response = mockMvc.perform(get("/api/employees/1"));
+        //then - verify the output
+        response.andExpect(MockMvcResultMatchers.status().isOk())
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.jsonPath("$", CoreMatchers.notNullValue()));
+    }
+
+    @Test
+    public void givenInvalidId_whenGetEmployeeById_thenReturnNotFound() throws Exception{
+        //given - precondition / setup
+        BDDMockito.given(employeeServce.getEmployeeByID(anyLong())).willReturn(Optional.empty());
+        //when - action or behaviour that we are testing
+        ResultActions response = mockMvc.perform(get("/api/employees/1"));
+        //then - verify the output
+        response.andExpect(MockMvcResultMatchers.status().isNotFound());
+    }
 
 }
