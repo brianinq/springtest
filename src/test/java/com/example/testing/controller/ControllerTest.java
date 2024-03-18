@@ -16,8 +16,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import java.util.List;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 @WebMvcTest
 public class ControllerTest {
@@ -54,6 +57,23 @@ public class ControllerTest {
                  .andExpect(MockMvcResultMatchers.jsonPath("$.firstName", CoreMatchers.is(employee.getFirstName())))
                  .andExpect(MockMvcResultMatchers.jsonPath("$.id", CoreMatchers.is(employee.getId().intValue())));
      }
+
+
+      @Test
+      @DisplayName("Get All Employees test")
+      public void givenEmployeeList_whenGetAllEmployees_thenReturnListOfEmployees() throws Exception{
+          //given - precondition / setup
+          BDDMockito.given(employeeServce.getAllEmployees()).willReturn(List.of(employee, employee));
+
+          //when - action or behaviour that we are testing
+          ResultActions response = mockMvc.perform(
+                  get("/api/employees")
+          );
+
+          //then - verify the output
+          response.andExpect(MockMvcResultMatchers.status().isOk())
+                  .andExpect(MockMvcResultMatchers.jsonPath("$.size()",CoreMatchers.is(2)));
+      }
 
 
 }
