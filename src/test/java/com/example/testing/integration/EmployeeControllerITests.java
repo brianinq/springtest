@@ -17,6 +17,9 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import java.util.List;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -43,7 +46,6 @@ public class EmployeeControllerITests {
         //given
         Employee employee = Employee
                 .builder()
-                .id(1L)
                 .firstName("Relic")
                 .lastName("Dent")
                 .build();
@@ -56,6 +58,58 @@ public class EmployeeControllerITests {
         response.andExpect(MockMvcResultMatchers.status().isCreated())
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.firstName", CoreMatchers.is(employee.getFirstName())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.id", CoreMatchers.is(employee.getId().intValue())));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id", CoreMatchers.notNullValue()));
+    }
+
+    @Test
+    @DisplayName("Get All Employees test")
+    public void givenEmployeeList_whenGetAllEmployees_thenReturnListOfEmployees() throws Exception{
+        //given - precondition / setup
+        Employee employee = Employee
+                .builder()
+                .firstName("Relic")
+                .lastName("Dent")
+                .build();
+        Employee employee1 = Employee
+                .builder()
+                .firstName("Relic")
+                .lastName("Dent")
+                .build();
+        List<Employee> employees = List.of(employee1, employee);
+        employeeRepository.saveAll(employees);
+
+        //when - action or behaviour that we are testing
+        ResultActions response = mockMvc.perform(
+                get("/api/employees")
+        );
+
+        //then - verify the output
+        response.andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.size()",CoreMatchers.is(2)));
+    }
+
+    @Test
+    public void givenEmployee_whenGetEmployeeById_thenReturnEmployee() throws Exception{
+        //given - precondition / setup
+        Employee employee = Employee
+                .builder()
+                .firstName("Relic")
+                .lastName("Dent")
+                .build();
+        employeeRepository.save(employee);
+        //when - action or behaviour that we are testing
+        ResultActions response = mockMvc.perform(get("/api/employees/"+employee.getId()));
+        //then - verify the output
+        response.andExpect(MockMvcResultMatchers.status().isOk())
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.jsonPath("$", CoreMatchers.notNullValue()));
+    }
+
+    @Test
+    public void givenInvalidId_whenGetEmployeeById_thenReturnNotFound() throws Exception{
+        //when - action or behaviour that we are testing
+        ResultActions response = mockMvc.perform(get("/api/employees/1"));
+        //then - verify the output
+        response.andExpect(MockMvcResultMatchers.status().isNotFound());
     }
 }
